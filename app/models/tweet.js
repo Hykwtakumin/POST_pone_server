@@ -6,6 +6,7 @@ var mongoose     = require('mongoose');
 var Schema       = mongoose.Schema;
 
 var TweetSchema   = new Schema({
+    clientID : { type: String, required: true, unique: true },
     repUUID: { type: String, required: true, unique: true },
     repURL: String,
     authToken : String,

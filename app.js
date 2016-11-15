@@ -1,9 +1,10 @@
 var express = require('express');
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var request = require('request');
 var twitterAPI = require('node-twitter-api');
-var Firebase = require('firebase');
 
 // DBへの接続
 var mongoose   = require('mongoose');
@@ -11,7 +12,6 @@ mongoose.connect('mongodb://localhost/post_pone_server');
 
 // モデルの宣言
 var Tweet = require('./app/models/tweet');
-var gcm = require('node-gcm');
 
 
 var Twitter = require('twitter');
@@ -22,20 +22,6 @@ var client = new Twitter({
     access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
     access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
 });
-
-var twitter = new twitterAPI({
-    consumerKey: 'ySrU0GId6X8mXol2Hp8w8zfNU',
-    consumerSecret: 'dbTrSxw4kAmwzovJkzmjFJ5Un692nMvijRFAoyaQ0NieovAHdF',
-    callback: 'http://yoururl.tld/something'
-});
-
-// var firebase = firebase.initializeApp({
-//     apiKey: ' AIzaSyDj7WMJiH_8wvv1u9S4AL4tHbsJ4k_-LjY',
-//     authDomain: 'postponeserver.firebaseapp.com',
-//     databaseURL: 'https://postponeserver.firebaseio.com',
-//     storageBucket: 'postponeserver.appspot.com',
-//     messagingSenderId: '995096584310'
-// });
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -62,48 +48,50 @@ router.route('/tweets')
 // ユーザの作成 (POST http://localhost:3000/api/tweets)
     .post(function(req, res) {
 
-        // 新しいモデルを作成する．
-        var tweet = new Tweet();
-        var repedTW;
+        // // 新しいモデルを作成する．
+        // var tweet = new Tweet();
+        // var repedTW;
 
         // 各カラムの情報を取得する．
         console.log(req.body);
 
         // var parsed_req_body = JSON.parse(req.body);
 
-        tweet.repUUID = req.body.repUUID;
-        tweet.authToken = req.body.authToken;
-        tweet.in_reply_to_status_id = req.body.repID;
-        tweet.repTW = req.body.repTW;
-        tweet.repComment = req.body.repComment ;
-        tweet.repURL =req.body.repURL;
-        tweet.sendPerson = req.body.sendPerson;
-        tweet.isOK = req.body.isOK;
-
-        client.get('statuses/show', {id: req.body.repID}, function(error, tweets, response){
-            if(error) throw error;
-            console.log(tweets.text);
-            tweet.repedTW= tweets.text;
-        });
-
-        // tweets情報をセーブする．
-        tweet.save(function(err){
-            if (err)
-                res.send(err);
-
-            client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
-                + tweet.repURL +'に対して\n' + '"' +tweet.repTW
-                + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
-                + 'はい→ https://localhost:3000/acccept/\n'
-                + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
-                if(error) throw error;
-                console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-            });
-
-            res.json({ repedTW: repedTW });
-
-            // res.json(req.body);
-        });
+        //
+        // tweet.clientID = req.body.clientID;
+        // tweet.repUUID = req.body.repUUID;
+        // tweet.authToken = req.body.authToken;
+        // tweet.in_reply_to_status_id = req.body.repID;
+        // tweet.repTW = req.body.repTW;
+        // tweet.repComment = req.body.repComment ;
+        // tweet.repURL =req.body.repURL;
+        // tweet.sendPerson = req.body.sendPerson;
+        // tweet.isOK = req.body.isOK;
+        //
+        // client.get('statuses/show', {id: req.body.repID}, function(error, tweets, response){
+        //     if(error) throw error;
+        //     console.log(tweets.text);
+        //     tweet.repedTW= tweets.text;
+        // });
+        //
+        // // tweets情報をセーブする．
+        // tweet.save(function(err){
+        //     if (err)
+        //         res.send(err);
+        //
+        //     client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
+        //         + tweet.repURL +'に対して\n' + '"' +tweet.repTW
+        //         + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
+        //         + 'はい→ https://localhost:3000/acccept/\n'
+        //         + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
+        //         if(error) throw error;
+        //         console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //     });
+        //
+        //     res.json({ repedTW: repedTW });
+        //
+        //     // res.json(req.body);
+        // });
     })
 
     //全てのユーザ一覧を取得 (GET)
@@ -214,10 +202,61 @@ router.route('/accept/:repUUID')
     });
 
 
+//Socket.io用
+io.sockets.on('connection', function(socket) {
+
+    socket.on('post_tweet', function (data){
+        var tweet = new Tweet();
+
+        var repURL = '';
+
+        tweet.clientID = data.clientID;
+        tweet.authToken = data.authToken;
+        tweet.repUUID = data.repUUID;
+        tweet.in_reply_to_status_id = data.in_reply_to_status_id;
+        tweet.repTW = data.repTW;
+        tweet.repComment = data.repComment ;
+        // tweet.repURL = data.repURL;
+        tweet.sendPerson = data.sendPerson;
+        tweet.isOK = data.isOK;
+        client.get('statuses/show', {id: tweet.in_reply_to_status_id}, function(error, tweets, response){
+            if(error) throw error;
+            console.log(tweets);
+            var repedTWID = tweets.id_str;
+            var repedTWname = tweets.user.screen_name;
+            repURL = 'https://twitter.com/' + repedTWname +'/status/'+repedTWID;
+            // tweet.repedTW= tweets.text;
+        });
+        tweet.repURL = repURL;
+        // console.log(data.sendPerson+repURL);
+
+        // tweets情報をセーブする．
+        tweet.save(function(err, res){
+            if (err)
+                console.log(err);
+
+            client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
+            + tweet.repURL +'に対して\n' + '"' +tweet.repTW
+            + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
+            + 'はい→ https://localhost:3000/acccept/\n'
+            + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
+                if(error) throw error;
+                console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+            });
+
+            // res.json({ repedTW: repedTW });
+
+            // res.json(req.body);
+        });
+    });
+}
+);
+
+
 
 // ルーティング登録
 app.use('/api', router);
 
 //サーバ起動
-app.listen(port);
+http.listen(port);
 console.log('listen on port ' + port);
