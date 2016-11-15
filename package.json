@@ -4,10 +4,16 @@
   "description": "POST_pone API server",
   "main": "app.js",
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "mongodb": "^2.2.11",
-    "twitter": "^1.4.0"
+    "body-parser": "~1.0.1",
+    "express": "~4.0.0",
+    "firebase": "^3.6.0",
+    "mongoose": "~4.2.7",
+    "node-gcm": "^0.14.4",
+    "node-twitter-api": "^1.8.0",
+    "nodemailer": "~0.7.0",
+    "request": "^2.78.0",
+    "twitter": "^1.4.0",
+    "xoauth2": "^1.2.0"
   },
   "devDependencies": {},
   "scripts": {

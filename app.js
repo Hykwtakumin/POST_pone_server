@@ -1,15 +1,19 @@
 var express = require('express');
 var app = express();
-
+var bodyParser = require('body-parser');
+var request = require('request');
+var twitterAPI = require('node-twitter-api');
+var Firebase = require('firebase');
 
 // DBへの接続
 var mongoose   = require('mongoose');
-mongoose.connect('mongodb://localhost/jsonAPI');
+mongoose.connect('mongodb://localhost/post_pone_server');
 
 // モデルの宣言
-var Tweets = require('./app/models/tweets');
+var Tweet = require('./app/models/tweet');
+var gcm = require('node-gcm');
 
-var bodyParser = require('body-parser');
+
 var Twitter = require('twitter');
 
 var client = new Twitter({
@@ -18,6 +22,21 @@ var client = new Twitter({
     access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
     access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
 });
+
+var twitter = new twitterAPI({
+    consumerKey: 'ySrU0GId6X8mXol2Hp8w8zfNU',
+    consumerSecret: 'dbTrSxw4kAmwzovJkzmjFJ5Un692nMvijRFAoyaQ0NieovAHdF',
+    callback: 'http://yoururl.tld/something'
+});
+
+// var firebase = firebase.initializeApp({
+//     apiKey: ' AIzaSyDj7WMJiH_8wvv1u9S4AL4tHbsJ4k_-LjY',
+//     authDomain: 'postponeserver.firebaseapp.com',
+//     databaseURL: 'https://postponeserver.firebaseio.com',
+//     storageBucket: 'postponeserver.appspot.com',
+//     messagingSenderId: '995096584310'
+// });
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -31,50 +50,169 @@ router.use(function(req, res, next) {
     next();
 });
 
-// /users というルートを作成する．
-// ----------------------------------------------------
-router.route('/posttweet')
-
-// ユーザの作成 (POST http://localhost:3000/api/tweetdata)
-    .post(function(req, res) {
-
-        // 新しいモデルを作成する．
-        var tweets = new Tweets();
-
-        // 各カラムの情報を取得する．
-        tweets.in_reply_to_status_id = req.body.repID;
-        tweets.ptweets = req.body.ptweets;
-
-        // tweets情報をセーブする．
-        tweets.save(function(err){
-            if (err)
-                res.send(err);
-
-            // var params = {screen_name: 'nodejs'};
-            // client.get('statuses/user_timeline', params, function(error, tweets, response) {
-            //     if (!error) {
-            //         console.log(tweets);
-            //     }
-            // });
-            res.json({ message: 'Tweet posted!' });
-        });
-
-    })
-
-    // 全てのユーザ一覧を取得 (GET http://localhost:8080/api/users)
-    // .get(function(req, res) {
-    //     User.find(function(err, users) {
-    //         if (err)
-    //             res.send(err);
-    //         res.json(users);
-    //     });
-    // });
-//-----------追記ここまで-----------
-
 //test
 router.get('/', function(req, res) {
     res.json({ message: 'Successfully Posted a test message.' });
 });
+
+// /users というルートを作成する．
+// ----------------------------------------------------
+router.route('/tweets')
+
+// ユーザの作成 (POST http://localhost:3000/api/tweets)
+    .post(function(req, res) {
+
+        // 新しいモデルを作成する．
+        var tweet = new Tweet();
+        var repedTW;
+
+        // 各カラムの情報を取得する．
+        console.log(req.body);
+
+        // var parsed_req_body = JSON.parse(req.body);
+
+        tweet.repUUID = req.body.repUUID;
+        tweet.authToken = req.body.authToken;
+        tweet.in_reply_to_status_id = req.body.repID;
+        tweet.repTW = req.body.repTW;
+        tweet.repComment = req.body.repComment ;
+        tweet.repURL =req.body.repURL;
+        tweet.sendPerson = req.body.sendPerson;
+        tweet.isOK = req.body.isOK;
+
+        client.get('statuses/show', {id: req.body.repID}, function(error, tweets, response){
+            if(error) throw error;
+            console.log(tweets.text);
+            tweet.repedTW= tweets.text;
+        });
+
+        // tweets情報をセーブする．
+        tweet.save(function(err){
+            if (err)
+                res.send(err);
+
+            client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
+                + tweet.repURL +'に対して\n' + '"' +tweet.repTW
+                + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
+                + 'はい→ https://localhost:3000/acccept/\n'
+                + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
+                if(error) throw error;
+                console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+            });
+
+            res.json({ repedTW: repedTW });
+
+            // res.json(req.body);
+        });
+    })
+
+    //全てのユーザ一覧を取得 (GET)
+    .get(function(req, res) {
+        Tweet.find(function(err, tweets) {
+            if (err)
+                res.send(err);
+            console.log('res.json');
+            res.json(tweets);
+        });
+    });
+//-----------追記ここまで-----------
+router.route('/tweets/:repUUID')
+//
+// 1人のユーザの情報を取得 (GET http://localhost:3000/api/tweets/:repUUID)
+    .get(function(req, res) {
+        //user_idが一致するデータを探す．
+        Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
+            if (err)
+                res.send(err);
+            res.json(tweet);
+        });
+    })
+    // // 1人のユーザの情報を更新 (PUT http://localhost:3000/api/tweets/:repUUID)
+    // .put(function(req, res) {
+    //     Tweet.findById(req.params.repUUID, function(err, tweet) {
+    //         if (err)
+    //             res.send(err);
+    //         // ユーザの各カラムの情報を更新する．
+    //         tweet.repTW = req.body.repTW;
+    //         tweet.repComment = req.body.repComment;
+    //
+    //         tweet.save(function(err) {
+    //             if (err)
+    //                 res.send(err);
+    //             res.json({ message: 'Tweet updated!' });
+    //         });
+    //     });
+    // })
+
+    // 1人のユーザの情報を削除 (DELETE http://localhost:3000/api/tweets/:repUUID)
+    .delete(function(req, res) {
+        Tweet.remove({
+            _id: req.params.repUUID
+        }, function(err, tweet) {
+            if (err)
+                res.send(err);
+            res.json({ message: 'Successfully deleted' });
+        });
+    });
+
+router.route('/proofread/:repUUID')
+// 1人のユーザの情報を更新 (PUT http://localhost:3000/api/tweets/:repUUID)
+    .post(function(req, res) {
+        Tweet.findById(req.params.repUUID, function(err, tweet) {
+            if (err)
+                res.send(err);
+            // ユーザの各カラムの情報を更新する．
+            tweet.repTW = req.body.repTW;
+            tweet.repComment = req.body.repComment;
+
+            tweet.save(function(err) {
+                if (err)
+                    res.send(err);
+                res.json({ message: 'Tweet updated!' });
+            });
+        });
+    });
+
+router.route('/accept/:repUUID')
+// 許可されたつぶやきをPOSTで代理投稿 (POST http://localhost:3000/api/accept/:repUUID)
+    .get(function(req, res) {
+
+        Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
+            if (err)
+                res.send(err);
+
+            var headers = {
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Content-Type':'application/x-www-form-urlencoded',
+                'X-Requested-With':'XMLHttpRequest'
+            };
+
+            var formData = {
+                'authenticity_token': tweet.authToken ,
+                'in_reply_to_status_id': tweet.in_reply_to_status_id,
+                'is_permalink_page': false,
+                'status:': tweet.repTW
+            };
+
+            var options = {
+                url: 'https://twitter.com/i/tweet/create',
+                method: 'POST',
+                headers: headers,
+                json: true,
+                form: formData
+            };
+
+            request(options, function (err, res, body) {
+                if (err)
+                    console.log(err);
+
+                console.log(res);
+            });
+
+            res.json(tweet);
+        });
+    });
+
 
 
 // ルーティング登録
