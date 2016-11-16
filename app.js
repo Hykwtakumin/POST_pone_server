@@ -4,7 +4,6 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var bodyParser = require('body-parser');
 var request = require('request');
-var twitterAPI = require('node-twitter-api');
 
 // DBへの接続
 var mongoose   = require('mongoose');
@@ -17,8 +16,8 @@ var Tweet = require('./app/models/tweet');
 var Twitter = require('twitter');
 
 var client = new Twitter({
-    consumer_key: 'ySrU0GId6X8mXol2Hp8w8zfNU',
-    consumer_secret: 'dbTrSxw4kAmwzovJkzmjFJ5Un692nMvijRFAoyaQ0NieovAHdF',
+    consumer_key: 'oxf84n4J5QvwysVnX9gontFZ8',
+    consumer_secret: 'JT0L9VCYSqC49GyjGjijFaF7pVvHvLGIxreHyB8oll1hXwLeBK',
     access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
     access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
 });
@@ -26,6 +25,9 @@ var client = new Twitter({
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.set('view engine', 'html');
+app.set('views', __dirname + '/app/views');
 
 var port = process.env.PORT || 3000;
 
@@ -47,51 +49,7 @@ router.route('/tweets')
 
 // ユーザの作成 (POST http://localhost:3000/api/tweets)
     .post(function(req, res) {
-
-        // // 新しいモデルを作成する．
-        // var tweet = new Tweet();
-        // var repedTW;
-
-        // 各カラムの情報を取得する．
         console.log(req.body);
-
-        // var parsed_req_body = JSON.parse(req.body);
-
-        //
-        // tweet.clientID = req.body.clientID;
-        // tweet.repUUID = req.body.repUUID;
-        // tweet.authToken = req.body.authToken;
-        // tweet.in_reply_to_status_id = req.body.repID;
-        // tweet.repTW = req.body.repTW;
-        // tweet.repComment = req.body.repComment ;
-        // tweet.repURL =req.body.repURL;
-        // tweet.sendPerson = req.body.sendPerson;
-        // tweet.isOK = req.body.isOK;
-        //
-        // client.get('statuses/show', {id: req.body.repID}, function(error, tweets, response){
-        //     if(error) throw error;
-        //     console.log(tweets.text);
-        //     tweet.repedTW= tweets.text;
-        // });
-        //
-        // // tweets情報をセーブする．
-        // tweet.save(function(err){
-        //     if (err)
-        //         res.send(err);
-        //
-        //     client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
-        //         + tweet.repURL +'に対して\n' + '"' +tweet.repTW
-        //         + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
-        //         + 'はい→ https://localhost:3000/acccept/\n'
-        //         + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
-        //         if(error) throw error;
-        //         console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-        //     });
-        //
-        //     res.json({ repedTW: repedTW });
-        //
-        //     // res.json(req.body);
-        // });
     })
 
     //全てのユーザ一覧を取得 (GET)
@@ -112,7 +70,9 @@ router.route('/tweets/:repUUID')
         Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
             if (err)
                 res.send(err);
-            res.json(tweet);
+            res.render('index', {
+                tweettext: tweet.repTW
+            });
         });
     })
     // // 1人のユーザの情報を更新 (PUT http://localhost:3000/api/tweets/:repUUID)
@@ -161,41 +121,13 @@ router.route('/proofread/:repUUID')
         });
     });
 
-router.route('/accept/:repUUID')
+router.route('/confirm/:repUUID')
 // 許可されたつぶやきをPOSTで代理投稿 (POST http://localhost:3000/api/accept/:repUUID)
     .get(function(req, res) {
-
         Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
             if (err)
                 res.send(err);
 
-            var headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type':'application/x-www-form-urlencoded',
-                'X-Requested-With':'XMLHttpRequest'
-            };
-
-            var formData = {
-                'authenticity_token': tweet.authToken ,
-                'in_reply_to_status_id': tweet.in_reply_to_status_id,
-                'is_permalink_page': false,
-                'status:': tweet.repTW
-            };
-
-            var options = {
-                url: 'https://twitter.com/i/tweet/create',
-                method: 'POST',
-                headers: headers,
-                json: true,
-                form: formData
-            };
-
-            request(options, function (err, res, body) {
-                if (err)
-                    console.log(err);
-
-                console.log(res);
-            });
 
             res.json(tweet);
         });
@@ -204,11 +136,42 @@ router.route('/accept/:repUUID')
 
 //Socket.io用
 io.sockets.on('connection', function(socket) {
+        // socket.on('send_Headers', function (data) {
+        //     console.log('send_Header='+data.send_Header);
+        //     console.log('send_Body='+data.send_Body);
+        //
+        //     var options = {
+        //         url: 'https://twitter.com/i/tweet/create',
+        //         method: 'POST',
+        //         headers: data.send_Header,
+        //         // json: true,
+        //         form: data.send_Body
+        //     };
+        //
+        //     request(options, function (err, res, body) {
+        //         if (err)
+        //             console.log(err);
+        //
+        //         console.log(res);
+        //     });
+        // });
+        // var options = {
+        //     url: 'https://twitter.com/i/tweet/create',
+        //     method: 'POST',
+        //     headers: headers,
+        //     json: true,
+        //     form: formData
+        // };
+        //
+        // request(options, function (err, res, body) {
+        //     if (err)
+        //         console.log(err);
+        //
+        //     console.log(res);
+        // });
 
     socket.on('post_tweet', function (data){
         var tweet = new Tweet();
-
-        var repURL = '';
 
         tweet.clientID = data.clientID;
         tweet.authToken = data.authToken;
@@ -216,43 +179,73 @@ io.sockets.on('connection', function(socket) {
         tweet.in_reply_to_status_id = data.in_reply_to_status_id;
         tweet.repTW = data.repTW;
         tweet.repComment = data.repComment ;
-        // tweet.repURL = data.repURL;
+        tweet.repURL = data.repURL;
         tweet.sendPerson = data.sendPerson;
         tweet.isOK = data.isOK;
-        client.get('statuses/show', {id: tweet.in_reply_to_status_id}, function(error, tweets, response){
-            if(error) throw error;
-            console.log(tweets);
-            var repedTWID = tweets.id_str;
-            var repedTWname = tweets.user.screen_name;
-            repURL = 'https://twitter.com/' + repedTWname +'/status/'+repedTWID;
-            // tweet.repedTW= tweets.text;
-        });
-        tweet.repURL = repURL;
-        // console.log(data.sendPerson+repURL);
 
         // tweets情報をセーブする．
         tweet.save(function(err, res){
             if (err)
                 console.log(err);
 
-            client.post('direct_messages/new', {screen_name: 'youngsnow_sfc', text: 'youngsnow_sfcさんが、\n'
-            + tweet.repURL +'に対して\n' + '"' +tweet.repTW
-            + '"\n' + 'とつぶやこうとしましたがいいですか?\n\n'
-            + 'はい→ https://localhost:3000/acccept/\n'
-            + 'だめ→https://localhost:3000/deny/'}, function(error, tweets, response){
-                if(error) throw error;
+            client.post('direct_messages/new', {
+                screen_name: 'AheAhej9ueryMan',
+                text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
+                + '"' + data.repTW
+            + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
+            + '問題無い場合は"OK"と、\n'
+            + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
+                if(error) console.log(error);
                 console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
             });
 
-            // res.json({ repedTW: repedTW });
-
-            // res.json(req.body);
         });
+
+        client.get('account/verify_credentials',
+            { include_entities: false, skip_status: true },
+            function (error, info, response) {
+                if (error) {
+                    throw error;
+                }
+                var myid = info.id; //youngsnow_sfc
+                client.stream('user', function (stream) {
+
+                    stream.on('data', function (tweet) {
+                        var dm = tweet && tweet.direct_message;
+                        if (dm && dm.sender.id !== myid) {
+                            console.log(dm.sender.screen_name, dm.text);
+                            if(dm.text == 'OK'){
+                                client.post('direct_messages/new', {
+                                    screen_name: 'AheAhej9ueryMan',
+                                    text: '了解です。送信を承認します。'}, function(error, tweets, response){
+                                    if(error) console.log(error);
+                                    console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+                                    socket.emit('confirm_tweet',{isConfirmed: true});
+                                });
+                            }else{
+                                client.post('direct_messages/new', {
+                                    screen_name: 'AheAhej9ueryMan',
+                                    text: '了解です。'}, function(error, tweets, response){
+                                    if(error) console.log(error);
+                                    console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+                                    socket.emit('confirm_tweet',{isConfirmed: false});
+                                    });
+                            }
+                        }
+                    });
+
+                    stream.on('error', function (error) {
+                        throw error;
+                    });
+
+                });
+
+            });
+
+
     });
-}
-);
 
-
+});
 
 // ルーティング登録
 app.use('/api', router);
