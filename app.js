@@ -214,6 +214,7 @@ io.sockets.on('connection', function(socket) {
                         var dm = tweet && tweet.direct_message;
                         if (dm && dm.sender.id !== myid) {
                             console.log(dm.sender.screen_name, dm.text);
+
                             if(dm.text == 'OK'){
                                 client.post('direct_messages/new', {
                                     screen_name: 'AheAhej9ueryMan',
@@ -225,10 +226,14 @@ io.sockets.on('connection', function(socket) {
                             }else{
                                 client.post('direct_messages/new', {
                                     screen_name: 'AheAhej9ueryMan',
-                                    text: '了解です。'}, function(error, tweets, response){
+                                    text: '了解です。改良文を送信します。'}, function(error, tweets, response){
                                     if(error) console.log(error);
                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-                                    socket.emit('confirm_tweet',{isConfirmed: false});
+                                    socket.emit('resend_tweet',{
+                                        isConfirmed: false,
+                                        //改良文
+                                        draft_Text: dm.text
+                                    });
                                     });
                             }
                         }
