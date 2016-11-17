@@ -48,8 +48,93 @@ router.get('/', function(req, res) {
 router.route('/tweets')
 
 // ユーザの作成 (POST http://localhost:3000/api/tweets)
-    .post(function(req, res) {
+    .post(function(req, responce) {
         console.log(req.body);
+        //
+        // var resData = null;
+        //
+        // // var tweet = new Tweet();
+        // //
+        // // tweet.clientID = req.params.clientID;
+        // // tweet.authToken = req.params.authToken;
+        // // tweet.repUUID =  req.params.repUUID;
+        // // tweet.in_reply_to_status_id = req.params.in_reply_to_status_id;
+        // // tweet.repTW = req.params.repTW;
+        // // tweet.repComment = req.params.repComment ;
+        // // tweet.repURL = req.params.repURL;
+        // // tweet.sendPerson = req.params.sendPerson;
+        // // tweet.isOK = req.params.isOK;
+        //
+        // // tweets情報をセーブする．
+        //
+        //     client.post('direct_messages/new', {
+        //         screen_name: 'AheAhej9ueryMan',
+        //         text: 'Mantani_puttaさんが、\n' + req.params.repURL +'に対して\n'
+        //         + '"' + req.params.repTW
+        //         + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
+        //         + '問題無い場合は"OK"と、\n'
+        //         + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
+        //         if(error) console.log(error);
+        //         console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //         client.get('account/verify_credentials',
+        //             { include_entities: false, skip_status: true },
+        //             function (error, info, response) {
+        //                 if (error) {
+        //                     throw error;
+        //                 }
+        //                 var myid = info.id; //youngsnow_sfc
+        //                 client.stream('user', function (stream) {
+        //
+        //                     stream.on('data', function (tweet) {
+        //                         var dm = tweet && tweet.direct_message;
+        //                         if (dm && dm.sender.id !== myid) {
+        //                             console.log(dm.sender.screen_name, dm.text);
+        //
+        //                             if(dm.text == 'OK'){
+        //                                 client.post('direct_messages/new', {
+        //                                     screen_name: 'AheAhej9ueryMan',
+        //                                     text: '了解です。送信を承認します。'}, function(error, tweets, response){
+        //                                     if(error) console.log(error);
+        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //                                     // socket.emit('confirm_tweet',{isConfirmed: true});
+        //                                     resData = {confirm_result:true};
+        //                                     responce.send(resData);
+        //                                     // stream.destroy();
+        //                                 });
+        //                             }else{
+        //                                 client.post('direct_messages/new', {
+        //                                     screen_name: 'AheAhej9ueryMan',
+        //                                     text: '了解です。改良文を送信します。'}, function(error, tweets, response){
+        //                                     if(error) console.log(error);
+        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //                                     // socket.emit('resend_tweet',{
+        //                                     //     isConfirmed: false,
+        //                                     //     //改良文
+        //                                     //     draft_Text: dm.text
+        //                                     // });
+        //                                     resData = {
+        //                                         confirm_result:false,
+        //                                         draft_Text: dm.text
+        //                                     };
+        //                                     responce.send(resData);
+        //                                     // stream.destroy();
+        //                                 });
+        //                             }
+        //                         }
+        //                     });
+        //
+        //
+        //                     stream.on('error', function (error) {
+        //                         throw error;
+        //                     });
+        //
+        //                 });
+        //
+        //             });
+        //
+        //     });
+
+        // responce.send(resData);
     })
 
     //全てのユーザ一覧を取得 (GET)
@@ -64,15 +149,104 @@ router.route('/tweets')
 //-----------追記ここまで-----------
 router.route('/tweets/:repUUID')
 //
+    .post(function (req, responce) {
+        // var tweet = new Tweet();
+        //
+        // tweet.clientID = req.params.clientID;
+        // tweet.authToken = req.params.authToken;
+        // tweet.repUUID =  req.params.repUUID;
+        // tweet.in_reply_to_status_id = req.params.in_reply_to_status_id;
+        // tweet.repTW = req.params.repTW;
+        // tweet.repComment = req.params.repComment ;
+        // tweet.repURL = req.params.repURL;
+        // tweet.sendPerson = req.params.sendPerson;
+        // tweet.isOK = req.params.isOK;
+        //
+        // // tweets情報をセーブする．
+        // tweet.save(function(err, res){
+        //     if (err)
+        //         console.log(err);
+        //
+        //     client.post('direct_messages/new', {
+        //         screen_name: 'AheAhej9ueryMan',
+        //         text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
+        //         + '"' + data.repTW
+        //         + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
+        //         + '問題無い場合は"OK"と、\n'
+        //         + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
+        //         if(error) console.log(error);
+        //         console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //
+        //         client.get('account/verify_credentials',
+        //             { include_entities: false, skip_status: true },
+        //             function (error, info, response) {
+        //                 if (error) {
+        //                     throw error;
+        //                 }
+        //                 var myid = info.id; //youngsnow_sfc
+        //                 client.stream('user', function (stream) {
+        //
+        //                     stream.on('data', function (tweet) {
+        //                         var dm = tweet && tweet.direct_message;
+        //                         if (dm && dm.sender.id !== myid) {
+        //                             console.log(dm.sender.screen_name, dm.text);
+        //
+        //                             if(dm.text == 'OK'){
+        //                                 client.post('direct_messages/new', {
+        //                                     screen_name: 'AheAhej9ueryMan',
+        //                                     text: '了解です。送信を承認します。'}, function(error, tweets, response){
+        //                                     if(error) console.log(error);
+        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //                                     // socket.emit('confirm_tweet',{isConfirmed: true});
+        //                                     responce({confirm_result:true});
+        //                                     // stream.destroy();
+        //                                 });
+        //                             }else{
+        //                                 client.post('direct_messages/new', {
+        //                                     screen_name: 'AheAhej9ueryMan',
+        //                                     text: '了解です。改良文を送信します。'}, function(error, tweets, response){
+        //                                     if(error) console.log(error);
+        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+        //                                     // socket.emit('resend_tweet',{
+        //                                     //     isConfirmed: false,
+        //                                     //     //改良文
+        //                                     //     draft_Text: dm.text
+        //                                     // });
+        //                                     responce({
+        //                                         confirm_result:false,
+        //                                         draft_Text: dm.text
+        //                                     });
+        //                                     // stream.destroy();
+        //                                 });
+        //                             }
+        //                         }
+        //                     });
+        //
+        //
+        //                     stream.on('error', function (error) {
+        //                         throw error;
+        //                     });
+        //
+        //                 });
+        //
+        //             });
+        //
+        //     });
+        //
+        // });
+
+    })
+
+
 // 1人のユーザの情報を取得 (GET http://localhost:3000/api/tweets/:repUUID)
     .get(function(req, res) {
-        //user_idが一致するデータを探す．
+        // user_idが一致するデータを探す．
         Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
             if (err)
                 res.send(err);
-            res.render('index', {
-                tweettext: tweet.repTW
-            });
+            // res.render('index', {
+            //     tweettext: tweet.repTW
+            // });
         });
     })
     // // 1人のユーザの情報を更新 (PUT http://localhost:3000/api/tweets/:repUUID)
@@ -170,7 +344,94 @@ io.sockets.on('connection', function(socket) {
         //     console.log(res);
         // });
 
-    socket.on('post_tweet', function (data){
+    // socket.on('post_tweet', function (data){
+    //     var tweet = new Tweet();
+    //
+    //     tweet.clientID = data.clientID;
+    //     tweet.authToken = data.authToken;
+    //     tweet.repUUID = data.repUUID;
+    //     tweet.in_reply_to_status_id = data.in_reply_to_status_id;
+    //     tweet.repTW = data.repTW;
+    //     tweet.repComment = data.repComment ;
+    //     tweet.repURL = data.repURL;
+    //     tweet.sendPerson = data.sendPerson;
+    //     tweet.isOK = data.isOK;
+    //
+    //     // tweets情報をセーブする．
+    //     tweet.save(function(err, res){
+    //         if (err)
+    //             console.log(err);
+    //
+    //         client.post('direct_messages/new', {
+    //             screen_name: 'AheAhej9ueryMan',
+    //             text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
+    //             + '"' + data.repTW
+    //         + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
+    //         + '問題無い場合は"OK"と、\n'
+    //         + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
+    //             if(error) console.log(error);
+    //             console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+    //         });
+    //
+    //     });
+    //
+    //     client.get('account/verify_credentials',
+    //         { include_entities: false, skip_status: true },
+    //         function (error, info, response) {
+    //             if (error) {
+    //                 throw error;
+    //             }
+    //             var myid = info.id; //youngsnow_sfc
+    //             client.stream('user', function (stream) {
+    //
+    //                 stream.on('data', function (tweet) {
+    //                     var dm = tweet && tweet.direct_message;
+    //                     if (dm && dm.sender.id !== myid) {
+    //                         console.log(dm.sender.screen_name, dm.text);
+    //
+    //                         if(dm.text == 'OK'){
+    //                             client.post('direct_messages/new', {
+    //                                 screen_name: 'AheAhej9ueryMan',
+    //                                 text: '了解です。送信を承認します。'}, function(error, tweets, response){
+    //                                 if(error) console.log(error);
+    //                                 console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+    //                                 socket.emit('confirm_tweet',{isConfirmed: true});
+    //                             });
+    //                         }else{
+    //                             client.post('direct_messages/new', {
+    //                                 screen_name: 'AheAhej9ueryMan',
+    //                                 text: '了解です。改良文を送信します。'}, function(error, tweets, response){
+    //                                 if(error) console.log(error);
+    //                                 console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
+    //                                 socket.emit('resend_tweet',{
+    //                                     isConfirmed: false,
+    //                                     //改良文
+    //                                     draft_Text: dm.text
+    //                                 });
+    //                                 });
+    //                         }
+    //                     }
+    //                 });
+    //
+    //                 stream.on('error', function (error) {
+    //                     throw error;
+    //                 });
+    //
+    //             });
+    //
+    //         });
+    //
+    //
+    // });
+
+
+
+    // socket.on('test_onack', function (data,ack) {
+    //     console.log(data);
+    //     ack({test_result:true});
+    //     });
+
+    socket.on('post_tweet', function (data, ack){
         var tweet = new Tweet();
 
         tweet.clientID = data.clientID;
@@ -192,9 +453,9 @@ io.sockets.on('connection', function(socket) {
                 screen_name: 'AheAhej9ueryMan',
                 text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
                 + '"' + data.repTW
-            + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
-            + '問題無い場合は"OK"と、\n'
-            + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
+                + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
+                + '問題無い場合は"OK"と、\n'
+                + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
                 if(error) console.log(error);
                 console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
             });
@@ -221,7 +482,9 @@ io.sockets.on('connection', function(socket) {
                                     text: '了解です。送信を承認します。'}, function(error, tweets, response){
                                     if(error) console.log(error);
                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-                                    socket.emit('confirm_tweet',{isConfirmed: true});
+                                    // socket.emit('confirm_tweet',{isConfirmed: true});
+                                    ack({confirm_result:true});
+                                    stream.destroy();
                                 });
                             }else{
                                 client.post('direct_messages/new', {
@@ -229,15 +492,21 @@ io.sockets.on('connection', function(socket) {
                                     text: '了解です。改良文を送信します。'}, function(error, tweets, response){
                                     if(error) console.log(error);
                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-                                    socket.emit('resend_tweet',{
-                                        isConfirmed: false,
-                                        //改良文
+                                    // socket.emit('resend_tweet',{
+                                    //     isConfirmed: false,
+                                    //     //改良文
+                                    //     draft_Text: dm.text
+                                    // });
+                                    ack({
+                                        confirm_result:false,
                                         draft_Text: dm.text
                                     });
-                                    });
+                                    stream.destroy();
+                                });
                             }
                         }
                     });
+
 
                     stream.on('error', function (error) {
                         throw error;
