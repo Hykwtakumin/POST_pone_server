@@ -16,11 +16,17 @@ var Tweet = require('./app/models/tweet');
 var Twitter = require('twitter');
 
 var client = new Twitter({
-    consumer_key: 'oxf84n4J5QvwysVnX9gontFZ8',
-    consumer_secret: 'JT0L9VCYSqC49GyjGjijFaF7pVvHvLGIxreHyB8oll1hXwLeBK',
-    access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
-    access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
+    consumer_key: 'tD7m4goDXOZyH1XVw3TrePdI5',
+    consumer_secret: 'R8vrnV0yfUZGx9D0PuNRUP04Enm315W5RAS3wq69d14Ce31Au5',
+    access_token_key: '744660449157734401-zHXTVgUVQ3gsupW6F0j8m5VIJIEc5tH',
+    access_token_secret: 'gRX1OjDIwVdGt4Wp1Qd9Bdmok3DgsKRif3X49rPwfwEEK'
 });
+
+//youngsnow
+// consumer_key: 'oxf84n4J5QvwysVnX9gontFZ8',
+// consumer_secret: 'JT0L9VCYSqC49GyjGjijFaF7pVvHvLGIxreHyB8oll1hXwLeBK',
+// access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
+// access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
 
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,7 +36,6 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/app/views');
 
 var port = process.env.PORT || 3000;
-
 var router = express.Router();
 
 router.use(function(req, res, next) {
@@ -238,7 +243,7 @@ router.route('/tweets/:repUUID')
     })
 
 
-// 1人のユーザの情報を取得 (GET http://localhost:3000/api/tweets/:repUUID)
+    // 1人のユーザの情報を取得 (GET http://localhost:3000/api/tweets/:repUUID)
     .get(function(req, res) {
         // user_idが一致するデータを探す．
         Tweet.find({repUUID: req.params.repUUID}, function(err, tweet) {
@@ -310,39 +315,39 @@ router.route('/confirm/:repUUID')
 
 //Socket.io用
 io.sockets.on('connection', function(socket) {
-        // socket.on('send_Headers', function (data) {
-        //     console.log('send_Header='+data.send_Header);
-        //     console.log('send_Body='+data.send_Body);
-        //
-        //     var options = {
-        //         url: 'https://twitter.com/i/tweet/create',
-        //         method: 'POST',
-        //         headers: data.send_Header,
-        //         // json: true,
-        //         form: data.send_Body
-        //     };
-        //
-        //     request(options, function (err, res, body) {
-        //         if (err)
-        //             console.log(err);
-        //
-        //         console.log(res);
-        //     });
-        // });
-        // var options = {
-        //     url: 'https://twitter.com/i/tweet/create',
-        //     method: 'POST',
-        //     headers: headers,
-        //     json: true,
-        //     form: formData
-        // };
-        //
-        // request(options, function (err, res, body) {
-        //     if (err)
-        //         console.log(err);
-        //
-        //     console.log(res);
-        // });
+    // socket.on('send_Headers', function (data) {
+    //     console.log('send_Header='+data.send_Header);
+    //     console.log('send_Body='+data.send_Body);
+    //
+    //     var options = {
+    //         url: 'https://twitter.com/i/tweet/create',
+    //         method: 'POST',
+    //         headers: data.send_Header,
+    //         // json: true,
+    //         form: data.send_Body
+    //     };
+    //
+    //     request(options, function (err, res, body) {
+    //         if (err)
+    //             console.log(err);
+    //
+    //         console.log(res);
+    //     });
+    // });
+    // var options = {
+    //     url: 'https://twitter.com/i/tweet/create',
+    //     method: 'POST',
+    //     headers: headers,
+    //     json: true,
+    //     form: formData
+    // };
+    //
+    // request(options, function (err, res, body) {
+    //     if (err)
+    //         console.log(err);
+    //
+    //     console.log(res);
+    // });
 
     // socket.on('post_tweet', function (data){
     //     var tweet = new Tweet();
@@ -451,7 +456,7 @@ io.sockets.on('connection', function(socket) {
 
             client.post('direct_messages/new', {
                 screen_name: 'AheAhej9ueryMan',
-                text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
+                text: '私は次のツイート\n' + data.repURL +'に対して\n'
                 + '"' + data.repTW
                 + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
                 + '問題無い場合は"OK"と、\n'
@@ -484,12 +489,17 @@ io.sockets.on('connection', function(socket) {
                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
                                     // socket.emit('confirm_tweet',{isConfirmed: true});
                                     ack({confirm_result:true});
-                                    stream.destroy();
                                 });
+                                client.post('statuses/update', {status: data.repTW},  function(error, tweet, response) {
+                                    if(error) throw error;
+                                    console.log(tweet);  // Tweet body.
+                                    console.log(response);  // Raw response object.
+                                });
+                                stream.destroy();
                             }else{
                                 client.post('direct_messages/new', {
                                     screen_name: 'AheAhej9ueryMan',
-                                    text: '了解です。改良文を送信します。'}, function(error, tweets, response){
+                                    text: '了解です。査読結果を送信します。'}, function(error, tweets, response){
                                     if(error) console.log(error);
                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
                                     // socket.emit('resend_tweet',{
@@ -501,8 +511,8 @@ io.sockets.on('connection', function(socket) {
                                         confirm_result:false,
                                         draft_Text: dm.text
                                     });
-                                    stream.destroy();
                                 });
+                                stream.destroy();
                             }
                         }
                     });
