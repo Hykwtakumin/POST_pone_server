@@ -490,7 +490,7 @@ io.sockets.on('connection', function(socket) {
                                     // socket.emit('confirm_tweet',{isConfirmed: true});
                                     ack({confirm_result:true});
                                 });
-                                client.post('statuses/update', {status: data.repTW},  function(error, tweet, response) {
+                                client.post('statuses/update', {status: data.repTW, in_reply_to_status_id: data.in_reply_to_status_id},  function(error, tweet, response) {
                                     if(error) throw error;
                                     console.log(tweet);  // Tweet body.
                                     console.log(response);  // Raw response object.
