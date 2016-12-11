@@ -66,90 +66,6 @@ router.route('/tweets')
 router.route('/tweets/:repUUID')
 //
     .post(function (req, responce) {
-        // var tweet = new Tweet();
-        //
-        // tweet.clientID = req.params.clientID;
-        // tweet.authToken = req.params.authToken;
-        // tweet.repUUID =  req.params.repUUID;
-        // tweet.in_reply_to_status_id = req.params.in_reply_to_status_id;
-        // tweet.repTW = req.params.repTW;
-        // tweet.repComment = req.params.repComment ;
-        // tweet.repURL = req.params.repURL;
-        // tweet.sendPerson = req.params.sendPerson;
-        // tweet.isOK = req.params.isOK;
-        //
-        // // tweets情報をセーブする．
-        // tweet.save(function(err, res){
-        //     if (err)
-        //         console.log(err);
-        //
-        //     client.post('direct_messages/new', {
-        //         screen_name: 'AheAhej9ueryMan',
-        //         text: 'Mantani_puttaさんが、\n' + data.repURL +'に対して\n'
-        //         + '"' + data.repTW
-        //         + '"\n' + 'とつぶやこうとしましたがよろしいですか?\n\n'
-        //         + '問題無い場合は"OK"と、\n'
-        //         + '訂正、添削を行う場合は、その文章を入力してください\nby POST_pone'}, function(error, tweets, response){
-        //         if(error) console.log(error);
-        //         console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-        //
-        //         client.get('account/verify_credentials',
-        //             { include_entities: false, skip_status: true },
-        //             function (error, info, response) {
-        //                 if (error) {
-        //                     throw error;
-        //                 }
-        //                 var myid = info.id; //youngsnow_sfc
-        //                 client.stream('user', function (stream) {
-        //
-        //                     stream.on('data', function (tweet) {
-        //                         var dm = tweet && tweet.direct_message;
-        //                         if (dm && dm.sender.id !== myid) {
-        //                             console.log(dm.sender.screen_name, dm.text);
-        //
-        //                             if(dm.text == 'OK'){
-        //                                 client.post('direct_messages/new', {
-        //                                     screen_name: 'AheAhej9ueryMan',
-        //                                     text: '了解です。送信を承認します。'}, function(error, tweets, response){
-        //                                     if(error) console.log(error);
-        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-        //                                     // socket.emit('confirm_tweet',{isConfirmed: true});
-        //                                     responce({confirm_result:true});
-        //                                     // stream.destroy();
-        //                                 });
-        //                             }else{
-        //                                 client.post('direct_messages/new', {
-        //                                     screen_name: 'AheAhej9ueryMan',
-        //                                     text: '了解です。改良文を送信します。'}, function(error, tweets, response){
-        //                                     if(error) console.log(error);
-        //                                     console.log('DM_ID:', tweets.id, 'sender_id', tweets.sender_id, 'recipient_id', tweets.recipient_id, 'created_at', tweets.created_at);
-        //                                     // socket.emit('resend_tweet',{
-        //                                     //     isConfirmed: false,
-        //                                     //     //改良文
-        //                                     //     draft_Text: dm.text
-        //                                     // });
-        //                                     responce({
-        //                                         confirm_result:false,
-        //                                         draft_Text: dm.text
-        //                                     });
-        //                                     // stream.destroy();
-        //                                 });
-        //                             }
-        //                         }
-        //                     });
-        //
-        //
-        //                     stream.on('error', function (error) {
-        //                         throw error;
-        //                     });
-        //
-        //                 });
-        //
-        //             });
-        //
-        //     });
-        //
-        // });
 
     })
 
@@ -165,7 +81,7 @@ router.route('/tweets/:repUUID')
             // });
         });
     })
-    
+
 
     // 1人のユーザの情報を削除 (DELETE http://localhost:3000/api/tweets/:repUUID)
     .delete(function(req, res) {
