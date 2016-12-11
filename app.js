@@ -22,12 +22,6 @@ var client = new Twitter({
     access_token_secret: 'gRX1OjDIwVdGt4Wp1Qd9Bdmok3DgsKRif3X49rPwfwEEK'
 });
 
-//youngsnow
-// consumer_key: 'oxf84n4J5QvwysVnX9gontFZ8',
-// consumer_secret: 'JT0L9VCYSqC49GyjGjijFaF7pVvHvLGIxreHyB8oll1hXwLeBK',
-// access_token_key: '3215271243-VCY1Fu6Urihck0PPPYyix4ehpnY5IXfIww4lhve',
-// access_token_secret: 'WLLGWbfiZwzrB0pdOU9I3cKYouGHoQ7TdIaNosD6G3zTH'
-
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -317,8 +311,6 @@ io.sockets.on('connection', function(socket) {
                 });
 
             });
-
-
     });
 
 });
