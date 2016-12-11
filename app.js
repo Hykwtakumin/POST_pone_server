@@ -165,22 +165,7 @@ router.route('/tweets/:repUUID')
             // });
         });
     })
-    // // 1人のユーザの情報を更新 (PUT http://localhost:3000/api/tweets/:repUUID)
-    // .put(function(req, res) {
-    //     Tweet.findById(req.params.repUUID, function(err, tweet) {
-    //         if (err)
-    //             res.send(err);
-    //         // ユーザの各カラムの情報を更新する．
-    //         tweet.repTW = req.body.repTW;
-    //         tweet.repComment = req.body.repComment;
-    //
-    //         tweet.save(function(err) {
-    //             if (err)
-    //                 res.send(err);
-    //             res.json({ message: 'Tweet updated!' });
-    //         });
-    //     });
-    // })
+    
 
     // 1人のユーザの情報を削除 (DELETE http://localhost:3000/api/tweets/:repUUID)
     .delete(function(req, res) {
